@@ -59,7 +59,8 @@
                 android:layout_columnWeight="1" />
             <ImageView android:id="@+id/name_mark"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"/>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -72,7 +73,8 @@
                 android:layout_height="wrap_content" />
             <ImageView android:id="@+id/school_mark"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"/>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -85,7 +87,8 @@
                 android:layout_height="wrap_content" />
             <ImageView android:id="@+id/year_mark"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"/>
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"/>
 
         </GridLayout>
     </ScrollView>

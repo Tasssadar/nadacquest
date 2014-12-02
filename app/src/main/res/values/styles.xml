@@ -11,7 +11,7 @@
         <item name="colorPrimary">@color/actionbar</item>
 
         <!-- colorPrimaryDark is used for the status bar -->
-        <item name="colorPrimaryDark">@color/actionbar</item>
+        <item name="colorPrimaryDark">@color/statusbar</item>
 
         <!-- colorAccent is used as the default value for colorControlActivated,
              which is used to tint widgets -->
@@ -19,4 +19,5 @@
     </style>
 
     <color name="actionbar">#147BA7</color>
+    <color name="statusbar">#ff134f6f</color>
 </resources>

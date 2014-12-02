@@ -1,8 +1,10 @@
 package com.tassadar.nadacquest;
 
-import android.app.Activity;
 import android.app.Fragment;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.media.Image;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,7 +15,6 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
@@ -28,12 +29,21 @@ public class GuessFragment extends Fragment implements LoadNadaceTask.NadacDbLis
         b = (Button)v.findViewById(R.id.button_check);
         b.setOnClickListener(this);
 
+        m_correctNadacIdx = -1;
+        for(int i = 0; i < Nadac.VALS_MAX; ++i)
+            m_selectedValIdx[i] = -1;
+
         if(savedInstanceState != null) {
-            m_selected = savedInstanceState.getIntegerArrayList("selected");
             m_correctNadacIdx = savedInstanceState.getInt("correctNadacIdx");
+            m_correctValIdx = savedInstanceState.getIntArray("correctValIdx");
+            m_selectedValIdx = savedInstanceState.getIntArray("selectedValIdx");
+            for(int i = 0; i < Nadac.VALS_MAX; ++i) {
+                getValsArray(i).clear();
+                getValsArray(i).addAll(savedInstanceState.getStringArrayList(Nadac.valId(i)));
+            }
         }
 
-        if(m_db == null) {
+        if (m_db == null) {
             new LoadNadaceTask(this).execute(getActivity());
         } else {
             v.postDelayed(new Runnable() {
@@ -48,9 +58,19 @@ public class GuessFragment extends Fragment implements LoadNadaceTask.NadacDbLis
 
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putIntegerArrayList("selected", m_selected);
+        outState.putIntArray("correctValIdx", m_correctValIdx);
         outState.putInt("correctNadacIdx", m_correctNadacIdx);
 
+        View v = getView();
+        for(int i = 0; i < Nadac.VALS_MAX; ++i) {
+            if(v != null) {
+                m_selectedValIdx[i] = ((Spinner)v.findViewById(getValsSpinnerId(i)))
+                        .getSelectedItemPosition();
+            }
+            outState.putStringArrayList(Nadac.valId(i), getValsArray(i));
+        }
+
+        outState.putIntArray("selectedValIdx", m_selectedValIdx);
     }
 
     public void onDestroy() {
@@ -61,29 +81,24 @@ public class GuessFragment extends Fragment implements LoadNadaceTask.NadacDbLis
     public void onNadacDBLoaded(NadacDB result) {
         m_db = result;
 
-        View v = getView().findViewById(R.id.progress);
-        v.setVisibility(View.GONE);
-
         if(m_db == null) {
+            View v = getView().findViewById(R.id.progress);
+            v.setVisibility(View.GONE);
+
             TextView t = (TextView) getView().findViewById(R.id.error_text);
             t.setVisibility(View.VISIBLE);
             t.setText("Nepodařilo se načíst nadáče :(");
             return;
         }
 
-        if(m_selected.size() == 0)
+        if(m_correctNadacIdx == -1)
             loadRandomNadac();
         else
-            loadCurrentNadac();
-
-        v = getView().findViewById(R.id.guess_scroll_view);
-        v.setVisibility(View.VISIBLE);
-        v = getView().findViewById(R.id.guess_buttons);
-        v.setVisibility(View.VISIBLE);
+            loadDataToViews(getView());
     }
 
     private void loadRandomNadac() {
-        m_selected.clear();
+        ArrayList<Integer> selected = new ArrayList<Integer>();
         ArrayList<Nadac> nadaci = m_db.getNadace();
         ArrayList<Integer> indexes = new ArrayList<Integer>();
         indexes.ensureCapacity(nadaci.size());
@@ -94,21 +109,32 @@ public class GuessFragment extends Fragment implements LoadNadaceTask.NadacDbLis
         Random r = new Random();
         for(int i = 0; i < chunkCnt; ++i) {
             int n = r.nextInt(indexes.size());
-            m_selected.add(indexes.get(n));
+            selected.add(indexes.get(n));
             indexes.remove(n);
         }
 
         indexes.clear();
         indexes = null;
 
-        m_correctNadacIdx = m_selected.get(r.nextInt(m_selected.size()));
-        loadCurrentNadac();
-    }
-
-    private void loadCurrentNadac() {
-        ArrayList<Nadac> nadaci = m_db.getNadace();
+        m_correctNadacIdx = selected.get(r.nextInt(selected.size()));
         final Nadac correctNadac = nadaci.get(m_correctNadacIdx);
 
+        for(int i = 0; i < Nadac.VALS_MAX; ++i) {
+            Collections.shuffle(selected);
+            getValsArray(i).clear();
+            for(int x = 0; x < selected.size(); ++x) {
+                Nadac n = nadaci.get(selected.get(x));
+                if(n.id == correctNadac.id)
+                    m_correctValIdx[i] = x;
+                getValsArray(i).add(n.valStr(i));
+            }
+        }
+
+        loadDataToViews(getView());
+    }
+
+    private void loadDataToViews(View v) {
+        final Nadac correctNadac = m_db.getNadace().get(m_correctNadacIdx);
         // lol, closures!
         new Thread(new Runnable() {
             @Override
@@ -130,42 +156,56 @@ public class GuessFragment extends Fragment implements LoadNadaceTask.NadacDbLis
             }
         }).start();
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
-                android.R.layout.simple_spinner_dropdown_item);
-        for(int i = 0; i < m_selected.size(); ++i) {
-            Nadac n = nadaci.get(m_selected.get(i));
-            if(n.id == correctNadac.id)
-                m_correctNameIdx = i;
-            adapter.add(n.name);
+        for(int i = 0; i < Nadac.VALS_MAX; ++i) {
+            ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(),
+                    android.R.layout.simple_spinner_dropdown_item);
+            adapter.addAll(getValsArray(i));
+            Spinner s = (Spinner) v.findViewById(getValsSpinnerId(i));
+            s.setAdapter(adapter);
+            if(m_selectedValIdx[i] != -1)
+                s.setSelection(m_selectedValIdx[i]);
         }
-        Spinner s = (Spinner)getView().findViewById(R.id.name);
-        s.setAdapter(adapter);
 
-        Collections.shuffle(m_selected);
+        View it = v.findViewById(R.id.progress);
+        it.setVisibility(View.GONE);
 
-        adapter = new ArrayAdapter<String>(getActivity(),
-                android.R.layout.simple_spinner_dropdown_item);
-        for(int i = 0; i < m_selected.size(); ++i) {
-            Nadac n = nadaci.get(m_selected.get(i));
-            if(n.id == correctNadac.id)
-                m_correctSchoolIdx = i;
-            adapter.add(n.school);
+        it = v.findViewById(R.id.guess_scroll_view);
+        it.setVisibility(View.VISIBLE);
+        it = v.findViewById(R.id.guess_buttons);
+        it.setVisibility(View.VISIBLE);
+    }
+
+    private ArrayList<String> getValsArray(int type) {
+        switch(type) {
+            case Nadac.VAL_NAME: return m_nameVals;
+            case Nadac.VAL_SCHOOL: return m_schoolVals;
+            case Nadac.VAL_YEAR: return m_yearVals;
         }
-        s = (Spinner)getView().findViewById(R.id.school);
-        s.setAdapter(adapter);
+        return null;
+    }
 
-        Collections.shuffle(m_selected);
-
-        adapter = new ArrayAdapter<String>(getActivity(),
-                android.R.layout.simple_spinner_dropdown_item);
-        for(int i = 0; i < m_selected.size(); ++i) {
-            Nadac n = nadaci.get(m_selected.get(i));
-            if(n.id == correctNadac.id)
-                m_correctYearIdx = i;
-            adapter.add(String.valueOf(n.year));
+    private static int getValsSpinnerId(int type) {
+        switch(type) {
+            case Nadac.VAL_NAME: return R.id.name;
+            case Nadac.VAL_SCHOOL: return R.id.school;
+            case Nadac.VAL_YEAR: return R.id.year;
         }
-        s = (Spinner)getView().findViewById(R.id.year);
-        s.setAdapter(adapter);
+        return -1;
+    }
+
+    private static int getValsMarkId(int type) {
+        switch(type) {
+            case Nadac.VAL_NAME: return R.id.name_mark;
+            case Nadac.VAL_SCHOOL: return R.id.school_mark;
+            case Nadac.VAL_YEAR: return R.id.year_mark;
+        }
+        return -1;
+    }
+
+    private void setMark(int type, boolean correct) {
+        ImageView v = (ImageView)getView().findViewById(getValsMarkId(type));
+        v.setImageResource(correct ? R.drawable.ic_action_accept : R.drawable.ic_action_remove);
+        v.setColorFilter(correct ? 0xFF007700 : Color.RED, PorterDuff.Mode.SRC_ATOP);
     }
 
     @Override
@@ -174,14 +214,30 @@ public class GuessFragment extends Fragment implements LoadNadaceTask.NadacDbLis
             case R.id.button_abort:
                 break;
             case R.id.button_check:
+            {
+                View v = getView();
+                boolean correct = true;
+                for(int i = 0; i < Nadac.VALS_MAX; ++i) {
+                    Spinner s = (Spinner)v.findViewById(getValsSpinnerId(i));
+                    setMark(i, m_correctValIdx[i] == s.getSelectedItemPosition());
+                    if(m_correctValIdx[i] != s.getSelectedItemPosition())
+                        correct = false;
+                }
+
+                if(correct) {
+                    View btns = v.findViewById(R.id.guess_buttons);
+                    btns.setVisibility(View.GONE);
+                }
                 break;
+            }
         }
     }
 
-    private int m_correctNameIdx;
-    private int m_correctSchoolIdx;
-    private int m_correctYearIdx;
+    private int[] m_correctValIdx = new int[Nadac.VALS_MAX];
+    private int[] m_selectedValIdx = new int[Nadac.VALS_MAX];
     private int m_correctNadacIdx;
-    private ArrayList<Integer> m_selected = new ArrayList<Integer>();
+    private ArrayList<String> m_nameVals = new ArrayList<String>();
+    private ArrayList<String> m_schoolVals = new ArrayList<String>();
+    private ArrayList<String> m_yearVals = new ArrayList<String>();
     private NadacDB m_db;
 }

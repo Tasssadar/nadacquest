@@ -4,6 +4,7 @@ import android.app.Fragment;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
+import android.graphics.drawable.AnimationDrawable;
 import android.media.Image;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -27,6 +28,8 @@ public class GuessFragment extends Fragment implements LoadNadaceTask.NadacDbLis
         Button b = (Button)v.findViewById(R.id.button_abort);
         b.setOnClickListener(this);
         b = (Button)v.findViewById(R.id.button_check);
+        b.setOnClickListener(this);
+        b = (Button)v.findViewById(R.id.next);
         b.setOnClickListener(this);
 
         m_correctNadacIdx = -1;
@@ -164,6 +167,7 @@ public class GuessFragment extends Fragment implements LoadNadaceTask.NadacDbLis
             s.setAdapter(adapter);
             if(m_selectedValIdx[i] != -1)
                 s.setSelection(m_selectedValIdx[i]);
+            s.setEnabled(true);
         }
 
         View it = v.findViewById(R.id.progress);
@@ -206,13 +210,71 @@ public class GuessFragment extends Fragment implements LoadNadaceTask.NadacDbLis
         ImageView v = (ImageView)getView().findViewById(getValsMarkId(type));
         v.setImageResource(correct ? R.drawable.ic_action_accept : R.drawable.ic_action_remove);
         v.setColorFilter(correct ? 0xFF007700 : Color.RED, PorterDuff.Mode.SRC_ATOP);
+        v.setVisibility(View.VISIBLE);
+    }
+
+    private void hideMarks() {
+        View v = getView();
+        for(int i = 0; i < Nadac.VALS_MAX; ++i) {
+            v.findViewById(getValsMarkId(i)).setVisibility(View.GONE);
+        }
+    }
+
+    private void showInfoText(final String text) {
+        TextView t = (TextView)getView().findViewById(R.id.info_text);
+        if(text == null) {
+            t.setVisibility(View.GONE);
+            return;
+        }
+
+        t.setVisibility(View.VISIBLE);
+        t.setText(text);
+        final int id = ++m_currInfoTextId;
+
+        //View v = getView().findViewById(R.id.wrong_gif);
+        //v.setVisibility(View.VISIBLE);
+        //((AnimationDrawable)v.getBackground()).start();
+
+        t.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                View v = getView();
+                if(v == null || m_currInfoTextId != id)
+                    return;
+                TextView t = (TextView)v.findViewById(R.id.info_text);
+                if(t == null)
+                    return;
+                t.setVisibility(View.GONE);
+            }
+        }, 3000);
+    }
+
+    private void showView(int id, boolean show) {
+        View v = getView();
+        if(v == null)
+            return;
+        v.findViewById(id).setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
     @Override
     public void onClick(View view) {
         switch(view.getId()) {
-            case R.id.button_abort:
+            case R.id.button_abort: {
+                View v = getView();
+                for(int i = 0; i < Nadac.VALS_MAX; ++i) {
+                    Spinner s = (Spinner)v.findViewById(getValsSpinnerId(i));
+                    s.setEnabled(false);
+                    s.setSelection(m_correctValIdx[i], true);
+                }
+
+                hideMarks();
+                showView(R.id.guess_buttons, false);
+                showView(R.id.next_layout, true);
+                showInfoText("Ale no táák :)\nTeď je vybrané správné řešení.");
+                Stats.incStat(getActivity(), Stats.STAT_GAVE_UP);
+                Stats.incStat(getActivity(), Stats.STAT_TOTAL);
                 break;
+            }
             case R.id.button_check:
             {
                 View v = getView();
@@ -225,9 +287,24 @@ public class GuessFragment extends Fragment implements LoadNadaceTask.NadacDbLis
                 }
 
                 if(correct) {
-                    View btns = v.findViewById(R.id.guess_buttons);
-                    btns.setVisibility(View.GONE);
+                    showView(R.id.guess_buttons, false);
+                    showView(R.id.next_layout, true);
+                    showInfoText("Všechno správně, výborně!");
+                    Stats.incStat(getActivity(), Stats.STAT_CORRECT);
+                    Stats.incStat(getActivity(), Stats.STAT_TOTAL);
+                } else {
+                    Stats.incStat(getActivity(), Stats.STAT_WRONG);
+                    showInfoText("Špatně!");
                 }
+                break;
+            }
+            case R.id.next:
+            {
+                hideMarks();
+                showView(R.id.next_layout, false);
+                loadRandomNadac();
+                showView(R.id.guess_buttons, true);
+                showInfoText("Načteno, můžeš hádat.");
                 break;
             }
         }
@@ -240,4 +317,5 @@ public class GuessFragment extends Fragment implements LoadNadaceTask.NadacDbLis
     private ArrayList<String> m_schoolVals = new ArrayList<String>();
     private ArrayList<String> m_yearVals = new ArrayList<String>();
     private NadacDB m_db;
+    private int m_currInfoTextId;
 }

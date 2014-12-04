@@ -38,7 +38,8 @@
             android:columnCount="4"
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
-            android:layout_gravity="center_horizontal">
+            android:layout_gravity="center_horizontal"
+            android:animateLayoutChanges="true">
 
             <ImageView android:id="@+id/photo"
                 android:layout_width="match_parent"
@@ -90,8 +91,24 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"/>
 
+            <View android:id="@+id/wrong_gif"
+                android:layout_column="0"
+                android:layout_width="40dp"
+                android:layout_height="31dp"
+                android:background="@drawable/wrong_anim"
+                android:visibility="gone"/>
         </GridLayout>
     </ScrollView>
+
+    <TextView
+        android:id="@+id/info_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal|center_vertical"
+        android:textColor="@color/statusbar"
+        android:gravity="center"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:layout_marginBottom="50dp"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -122,5 +139,20 @@
             android:textColor="#fff"
             android:background="?android:attr/selectableItemBackground"
             android:id="@+id/button_check" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/next_layout"
+        android:layout_width="match_parent"
+        android:layout_height="52dp"
+        android:background="@color/actionbar"
+        android:visibility="gone">
+        <Button
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="?android:attr/selectableItemBackground"
+            android:textColor="#fff"
+            android:text="DALŠÍHO NADÁČE!"
+            android:id="@+id/next"/>
     </LinearLayout>
 </LinearLayout>

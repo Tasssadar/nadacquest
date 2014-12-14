@@ -26,9 +26,15 @@ public class Nadac {
         return null;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        return (o instanceof Nadac) && ((Nadac)o).id == id;
+    }
+
     public int id;
     public String name;
     public String school;
     public int year;
     public Bitmap photo;
+    public String hobbies;
 }

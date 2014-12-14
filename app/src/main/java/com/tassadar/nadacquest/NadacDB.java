@@ -50,9 +50,12 @@ public class NadacDB {
         if(m_db == null)
             return false;
 
-        //                        0     1       2       3
-        final String[] cols = { "id", "name", "skola", "rocnik" };
-        Cursor c = m_db.query("nadaci", cols, null, null, null, null, null);
+        m_nadaci.clear();
+        m_schools.clear();
+
+        //                        0     1       2       3       4          5
+        final String[] cols = { "id", "name", "school", "year", "hobbies", "photo" };
+        Cursor c = m_db.query("nadaci", cols, "photo_url!=''", null, null, null, null);
 
         while(c.moveToNext()) {
             Nadac n = new Nadac();
@@ -60,13 +63,27 @@ public class NadacDB {
             n.name = c.getString(1);
             n.school = c.getString(2);
             n.year = c.getInt(3);
+            n.hobbies = c.getString(4);
+            byte[] data = c.getBlob(5);
+            if(data != null)
+                n.photo = BitmapFactory.decodeByteArray(data, 0, data.length);
             m_nadaci.add(n);
+        }
+        c.close();
+
+        final String[] school_cols = { "school" };
+        c = m_db.query("nadaci", school_cols, null, null, "school", null, null);
+        while(c.moveToNext()) {
+            m_schools.add(c.getString(0));
         }
         c.close();
         return true;
     }
 
     public Bitmap LoadPhoto(Nadac n) {
+        if(n.photo != null)
+            return n.photo;
+
         if(m_db == null)
             return null;
 
@@ -87,8 +104,10 @@ public class NadacDB {
     }
 
     public ArrayList<Nadac> getNadace() { return m_nadaci; }
+    public ArrayList<String> getSchools() { return m_schools; }
 
 
     private SQLiteDatabase m_db;
     private ArrayList<Nadac> m_nadaci = new ArrayList<Nadac>();
+    private ArrayList<String> m_schools = new ArrayList<>();
 }

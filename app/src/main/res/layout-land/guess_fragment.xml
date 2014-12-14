@@ -32,32 +32,36 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:stretchColumns="1"
-            android:layout_gravity="center_vertical">
+            android:padding="20dp"
+            android:stretchColumns="1">
 
-            <at.technikum.mti.fancycoverflow.FancyCoverFlow
-                android:id="@+id/photo"
-                android:layout_width="match_parent"
-                android:layout_height="150dp"
-                fcf:maxRotation="0"
-                fcf:unselectedAlpha="0.3"
-                fcf:unselectedSaturation="0.0"
-                fcf:unselectedScale="0.5"
-                fcf:scaleDownGravity="0.5"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"/>
-
-            <TextView android:id="@+id/hobbies"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textStyle="italic"
-                android:gravity="center"
-                android:layout_margin="10dp"/>
+                android:orientation="horizontal">
+                <at.technikum.mti.fancycoverflow.FancyCoverFlow
+                    android:id="@+id/photo"
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="150dp"
+                    fcf:maxRotation="0"
+                    fcf:unselectedAlpha="0.3"
+                    fcf:unselectedSaturation="0.0"
+                    fcf:unselectedScale="0.5"
+                    fcf:scaleDownGravity="0.5"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"/>
+                <TextView android:id="@+id/hobbies"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textStyle="italic"
+                    android:gravity="center"
+                    android:layout_gravity="center_vertical"/>
+            </LinearLayout>
 
-            <TableRow
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp">
+            <TableRow>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -73,9 +77,7 @@
                     android:layout_gravity="center_vertical"/>
             </TableRow>
 
-            <TableRow
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp">
+            <TableRow>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -92,9 +94,7 @@
                     android:layout_gravity="center_vertical"/>
             </TableRow>
 
-            <TableRow
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp">
+            <TableRow>
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"

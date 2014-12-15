@@ -26,7 +26,7 @@ public class NadacCarouselAdapter extends FancyCoverFlowAdapter {
     }
     @Override
     public Nadac getItem(int i) {
-        return m_db.getNadace().get(i);
+        return m_db.getNadac(i);
     }
     @Override
     public long getItemId(int i) {
@@ -52,8 +52,7 @@ public class NadacCarouselAdapter extends FancyCoverFlowAdapter {
 
         }
 
-        Bitmap b = m_db.LoadPhoto(this.getItem(i));
-        imageView.setImageBitmap(b);
+        imageView.setImageBitmap(m_db.getNadac(i).photo);
         return imageView;
     }
 }

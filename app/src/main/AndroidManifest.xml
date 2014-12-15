@@ -7,14 +7,15 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
-        <activity
-            android:name="com.tassadar.nadacquest.MainActivity">
+        <activity android:name="com.tassadar.nadacquest.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name="com.tassadar.nadacquest.GuessActivity" />
+        <activity android:name="com.tassadar.nadacquest.StatsActivity" />
+        <activity android:name="com.tassadar.nadacquest.SearchActivity" />
     </application>
 
 </manifest>

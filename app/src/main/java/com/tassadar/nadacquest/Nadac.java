@@ -33,8 +33,12 @@ public class Nadac {
 
     public int id;
     public String name;
+    public String normalizedName;
     public String school;
     public int year;
     public Bitmap photo;
     public String hobbies;
+    public String birthday;
+    public int start_year;
+    public boolean is_in_program;
 }

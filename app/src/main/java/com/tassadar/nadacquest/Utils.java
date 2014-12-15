@@ -10,6 +10,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.Normalizer;
+import java.util.Comparator;
+import java.util.List;
 
 public class Utils {
     public static String extractAsset(Context ctx, String name) {
@@ -51,5 +54,27 @@ public class Utils {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static String normalizeName(String name) {
+        StringBuilder b = new StringBuilder(name.length());
+        name = Normalizer.normalize(name, Normalizer.Form.NFD);
+        final byte[] bytes = name.getBytes();
+        for(byte c : bytes) {
+            if(c > 0)
+                b.append(Character.toLowerCase((char)c));
+        }
+        return b.toString();
+    }
+
+    public static <E> void listAddSorted(List<E> list, E item, Comparator<E> comparator) {
+        final int size = list.size();
+        for(int i = 0; i < size; ++i) {
+            if(comparator.compare(list.get(i), item) < 0) {
+                list.add(i, item);
+                return;
+            }
+        }
+        list.add(item);
     }
 }

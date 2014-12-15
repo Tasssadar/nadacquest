@@ -14,12 +14,13 @@
         android:indeterminateOnly="true"
         android:layout_gravity="center"/>
 
-    <TextView
+    <TextView android:id="@+id/error_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
         android:layout_marginTop="100dp"
-        android:layout_gravity="center"
-        android:id="@+id/error_text"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textColor="#ff0000"
         android:visibility="gone"/>
 
     <ScrollView
@@ -68,9 +69,11 @@
                     android:layout_width="0dp"
                     android:layout_weight="1"/>
                 <ImageView android:id="@+id/name_mark"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:layout_gravity="center_vertical"/>
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:visibility="invisible"
+                    android:src="@drawable/ic_action_accept"/>
             </TableRow>
 
             <TableRow
@@ -87,9 +90,11 @@
                     android:spinnerMode="dialog"
                     android:layout_weight="1"/>
                 <ImageView android:id="@+id/school_mark"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:layout_gravity="center_vertical"/>
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:visibility="invisible"
+                    android:src="@drawable/ic_action_accept"/>
             </TableRow>
 
             <TableRow
@@ -105,9 +110,11 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"/>
                 <ImageView android:id="@+id/year_mark"
-                    android:layout_width="32dp"
-                    android:layout_height="32dp"
-                    android:layout_gravity="center_vertical"/>
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:visibility="invisible"
+                    android:src="@drawable/ic_action_accept"/>
             </TableRow>
         </TableLayout>
     </ScrollView>

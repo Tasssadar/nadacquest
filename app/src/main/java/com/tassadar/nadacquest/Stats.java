@@ -21,7 +21,7 @@ public class Stats {
 
     public static void saveStat(Context ctx, int type) {
         SharedPreferences.Editor e = PreferenceManager.getDefaultSharedPreferences(ctx).edit();
-        if(type == -1) {
+        if(type != -1) {
             e.putInt("stat" + type, m_stats[type]);
         } else {
             for(int i = 0; i < STAT_CNT; ++i)
@@ -49,6 +49,15 @@ public class Stats {
 
         m_stats[type] += 1;
         saveStat(ctx, type);
+    }
+
+    public static void reset(Context ctx) {
+        if(m_stats == null)
+            m_stats = new int[STAT_CNT];
+
+        for(int i = 0; i < STAT_CNT; ++i)
+            m_stats[i] = 0;
+        saveStat(ctx, -1);
     }
 
     private static int m_stats[] = null;

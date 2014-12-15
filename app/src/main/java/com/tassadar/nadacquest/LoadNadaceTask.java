@@ -18,15 +18,16 @@ public class LoadNadaceTask extends AsyncTask<Context, Void, NadacDB> {
     @Override
     protected NadacDB doInBackground(Context... ctx) {
         NadacDB db = NadacDB.Get();
-        if(db == null) {
-            db = NadacDB.Open(ctx[0]);
-            if(db == null)
-                return null;
+        if(db != null)
+            return db;
 
-            if(!db.LoadAll()) {
-                NadacDB.Destroy();
-                return null;
-            }
+        db = NadacDB.Open(ctx[0]);
+        if(db == null)
+            return null;
+
+        if(!db.LoadAll()) {
+            NadacDB.Destroy();
+            return null;
         }
         return db;
     }

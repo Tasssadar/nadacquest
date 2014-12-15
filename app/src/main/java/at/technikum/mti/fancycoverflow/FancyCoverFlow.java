@@ -387,11 +387,17 @@ public class FancyCoverFlow extends Gallery {
         m_curScrollPos = val;
     }
 
-    public void scrollToIndex(final int idx) {
-        int dest = ((FancyCoverFlowAdapter)getAdapter()).getItemWitdth()*idx;
+    public void scrollToIndex(final int idx, boolean animate) {
+        final int dest = ((FancyCoverFlowAdapter)getAdapter()).getItemWitdth()*idx;
+        if(!animate) {
+            setSelection(idx);
+            m_curScrollPos = dest;
+            return;
+        }
+
         ObjectAnimator a = ObjectAnimator.ofInt(this, "scrollHax", m_curScrollPos, dest);
         a.setInterpolator(new AccelerateDecelerateInterpolator());
-        a.setDuration(1500);
+        a.setDuration(1250);
         a.addListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animator) {
@@ -401,6 +407,7 @@ public class FancyCoverFlow extends Gallery {
             @Override
             public void onAnimationEnd(Animator animator) {
                 setSelection(idx);
+                m_curScrollPos = dest;
             }
 
             @Override

@@ -41,6 +41,7 @@ public class GuessFragment extends Fragment implements LoadNadaceTask.NadacDbLis
 
         if(savedInstanceState != null) {
             m_correctNadacIdx = savedInstanceState.getInt("correctNadacIdx");
+            m_correctNadacId = savedInstanceState.getInt("correctNadacId");
             m_correctValIdx = savedInstanceState.getIntArray("correctValIdx");
             m_selectedValIdx = savedInstanceState.getIntArray("selectedValIdx");
             for(int i = 0; i < Nadac.VALS_MAX; ++i) {
@@ -48,6 +49,7 @@ public class GuessFragment extends Fragment implements LoadNadaceTask.NadacDbLis
                 getValsArray(i).addAll(savedInstanceState.getStringArrayList(Nadac.valId(i)));
             }
             m_lastGuesses = savedInstanceState.getIntegerArrayList("lastGuesses");
+            m_loaded = true;
         }
 
         if (m_db == null) {
@@ -67,6 +69,7 @@ public class GuessFragment extends Fragment implements LoadNadaceTask.NadacDbLis
         super.onSaveInstanceState(outState);
         outState.putIntArray("correctValIdx", m_correctValIdx);
         outState.putInt("correctNadacIdx", m_correctNadacIdx);
+        outState.putInt("correctNadacId", m_correctNadacId);
 
         View v = getView();
         for(int i = 0; i < Nadac.VALS_MAX; ++i) {
@@ -103,6 +106,11 @@ public class GuessFragment extends Fragment implements LoadNadaceTask.NadacDbLis
         f.setSpacing(0);
         f.setAdapter(new NadacCarouselAdapter(getActivity(), m_db));
 
+        // DB has loaded again and has been shuffled, we need to look for the idx again
+        if(m_correctNadacIdx != -1 && m_db.getNadac(m_correctNadacIdx).id != m_correctNadacId) {
+            m_correctNadacIdx = m_db.getNadacIdxById(m_correctNadacId);
+        }
+
         if(m_correctNadacIdx == -1)
             loadRandomNadac();
         else
@@ -135,6 +143,7 @@ public class GuessFragment extends Fragment implements LoadNadaceTask.NadacDbLis
             m_lastGuesses.remove(0);
 
         final Nadac correctNadac = nadaci.get(m_correctNadacIdx);
+        m_correctNadacId = correctNadac.id;
 
         for(int i = 0; i < Nadac.VALS_MAX; ++i) {
             getValsArray(i).clear();
@@ -167,13 +176,13 @@ public class GuessFragment extends Fragment implements LoadNadaceTask.NadacDbLis
         }
 
         loadDataToViews(getView());
-
     }
 
     private void loadDataToViews(View v) {
         final Nadac correctNadac = m_db.getNadace().get(m_correctNadacIdx);
         FancyCoverFlow f = (FancyCoverFlow)getView().findViewById(R.id.photo);
-        f.scrollToIndex(m_correctNadacIdx);
+        f.scrollToIndex(m_correctNadacIdx, !m_loaded);
+        m_loaded = false;
 
         String hobbies = correctNadac.hobbies;
         if(hobbies.isEmpty())
@@ -247,7 +256,7 @@ public class GuessFragment extends Fragment implements LoadNadaceTask.NadacDbLis
     private void hideMarks() {
         View v = getView();
         for(int i = 0; i < Nadac.VALS_MAX; ++i) {
-            v.findViewById(getValsMarkId(i)).setVisibility(View.GONE);
+            v.findViewById(getValsMarkId(i)).setVisibility(View.INVISIBLE);
         }
     }
 
@@ -353,6 +362,7 @@ public class GuessFragment extends Fragment implements LoadNadaceTask.NadacDbLis
     private int[] m_correctValIdx = new int[Nadac.VALS_MAX];
     private int[] m_selectedValIdx = new int[Nadac.VALS_MAX];
     private int m_correctNadacIdx;
+    private int m_correctNadacId;
     private ArrayList<String> m_nameVals = new ArrayList<String>();
     private ArrayList<String> m_schoolVals = new ArrayList<String>();
     private ArrayList<String> m_yearVals = new ArrayList<String>();
@@ -360,4 +370,5 @@ public class GuessFragment extends Fragment implements LoadNadaceTask.NadacDbLis
     private NadacDB m_db;
     private int m_currInfoTextId;
     private Random m_random = new Random();
+    private boolean m_loaded = false;
 }

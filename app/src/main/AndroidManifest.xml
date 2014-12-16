@@ -16,6 +16,8 @@
         <activity android:name="com.tassadar.nadacquest.GuessActivity" />
         <activity android:name="com.tassadar.nadacquest.StatsActivity" />
         <activity android:name="com.tassadar.nadacquest.SearchActivity" />
+        <activity android:name="com.tassadar.nadacquest.WelcomeActivity"
+            android:screenOrientation="portrait"/>
     </application>
 
 </manifest>

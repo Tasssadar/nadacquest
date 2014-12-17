@@ -40,13 +40,16 @@ public class GuessFragment extends Fragment implements LoadNadaceTask.NadacDbLis
         b = (Button)v.findViewById(R.id.next);
         b.setOnClickListener(this);
 
+        m_pendingCarouselAnimIdx = -1;
+        m_firstCarouselAnim = true;
+
         m_correctNadacIdx = -1;
         for(int i = 0; i < Nadac.VALS_MAX; ++i)
             m_selectedValIdx[i] = -1;
 
         if(savedInstanceState != null) {
-            m_correctNadacIdx = savedInstanceState.getInt("correctNadacIdx");
-            m_correctNadacId = savedInstanceState.getInt("correctNadacId");
+            m_correctNadacIdx = savedInstanceState.getInt("correctNadacIdx", -1);
+            m_correctNadacId = savedInstanceState.getInt("correctNadacId", -1);
             m_correctValIdx = savedInstanceState.getIntArray("correctValIdx");
             m_selectedValIdx = savedInstanceState.getIntArray("selectedValIdx");
             for(int i = 0; i < Nadac.VALS_MAX; ++i) {
@@ -54,6 +57,7 @@ public class GuessFragment extends Fragment implements LoadNadaceTask.NadacDbLis
                 getValsArray(i).addAll(savedInstanceState.getStringArrayList(Nadac.valId(i)));
             }
             m_lastGuesses = savedInstanceState.getIntegerArrayList("lastGuesses");
+            m_showNextNadac = savedInstanceState.getBoolean("showNextNadac", false);
             m_loaded = true;
         }
 
@@ -87,6 +91,7 @@ public class GuessFragment extends Fragment implements LoadNadaceTask.NadacDbLis
 
         outState.putIntArray("selectedValIdx", m_selectedValIdx);
         outState.putIntegerArrayList("lastGuesses", m_lastGuesses);
+        outState.putBoolean("showNextNadac", m_showNextNadac);
     }
 
     public void onDestroy() {
@@ -123,6 +128,7 @@ public class GuessFragment extends Fragment implements LoadNadaceTask.NadacDbLis
                     p.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                 }
                 p.setPageMargin((p.getWidth() - img)*-1);
+                startPendingCarouselAnimations(p);
             }
         });
         p.setOnTouchListener(new View.OnTouchListener() {
@@ -151,6 +157,13 @@ public class GuessFragment extends Fragment implements LoadNadaceTask.NadacDbLis
             loadRandomNadac();
         else
             loadDataToViews(getView());
+    }
+
+    private void startPendingCarouselAnimations(ViewPager p) {
+        if(m_pendingCarouselAnimIdx != -1) {
+            p.setCurrentItem(m_pendingCarouselAnimIdx, true);
+            m_pendingCarouselAnimIdx = -1;
+        }
     }
 
     public <E> List<E> getRandomSample(List<E> list, int n, E req) {
@@ -217,12 +230,12 @@ public class GuessFragment extends Fragment implements LoadNadaceTask.NadacDbLis
     private void loadDataToViews(View v) {
         final Nadac correctNadac = m_db.getNadace().get(m_correctNadacIdx);
         final ViewPager p = (ViewPager)getView().findViewById(R.id.photo);
-        p.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                p.setCurrentItem(m_correctNadacIdx, !m_loaded);
-            }
-        }, 1);
+        if(m_firstCarouselAnim && !m_loaded) {
+            m_pendingCarouselAnimIdx = m_correctNadacIdx;
+        } else {
+            p.setCurrentItem(m_correctNadacIdx, !m_loaded);
+        }
+        m_firstCarouselAnim = false;
 
         final TextView t = (TextView)v.findViewById(R.id.hobbies);
         t.setVisibility(View.INVISIBLE);
@@ -244,6 +257,8 @@ public class GuessFragment extends Fragment implements LoadNadaceTask.NadacDbLis
             s.setAdapter(adapter);
             if(m_selectedValIdx[i] != -1)
                 s.setSelection(m_selectedValIdx[i]);
+            else if(m_correctValIdx[i] == 0)
+                s.setSelection(1 + m_random.nextInt(adapter.getCount()-1));
             s.setEnabled(true);
         }
 
@@ -252,8 +267,11 @@ public class GuessFragment extends Fragment implements LoadNadaceTask.NadacDbLis
 
         it = v.findViewById(R.id.guess_scroll_view);
         it.setVisibility(View.VISIBLE);
-        it = v.findViewById(R.id.guess_buttons);
-        it.setVisibility(View.VISIBLE);
+
+        showView(v, R.id.guess_buttons, !m_showNextNadac);
+        if(m_showNextNadac) {
+            showView(v, R.id.next_layout, true);
+        }
     }
 
     private ArrayList<String> getValsArray(int type) {
@@ -339,10 +357,12 @@ public class GuessFragment extends Fragment implements LoadNadaceTask.NadacDbLis
         }, 3000);
     }
 
-    private void showView(int id, boolean show) {
-        View v = getView();
-        if(v == null)
-            return;
+    private void showView(View v, int id, boolean show) {
+        if(v == null) {
+            v = getView();
+            if(v == null)
+                return;
+        }
         v.findViewById(id).setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
@@ -359,8 +379,9 @@ public class GuessFragment extends Fragment implements LoadNadaceTask.NadacDbLis
                     s.setSelection(m_correctValIdx[i], true);
                 }
 
-                showView(R.id.guess_buttons, false);
-                showView(R.id.next_layout, true);
+                showView(v, R.id.guess_buttons, false);
+                showView(v, R.id.next_layout, true);
+                m_showNextNadac = true;
 
                 /*v.findViewById(R.id.guess_scroll_view).postDelayed(new Runnable() {
                     @Override
@@ -384,8 +405,9 @@ public class GuessFragment extends Fragment implements LoadNadaceTask.NadacDbLis
             {
                 View v = getView();
                 if(checkCorrect(v)) {
-                    showView(R.id.guess_buttons, false);
-                    showView(R.id.next_layout, true);
+                    showView(v, R.id.guess_buttons, false);
+                    showView(v, R.id.next_layout, true);
+                    m_showNextNadac = true;
                     showInfoText("Všechno správně, výborně!");
                     Stats.incStat(getActivity(), Stats.STAT_CORRECT);
                     Stats.incStat(getActivity(), Stats.STAT_TOTAL);
@@ -398,9 +420,10 @@ public class GuessFragment extends Fragment implements LoadNadaceTask.NadacDbLis
             case R.id.next:
             {
                 hideMarks();
-                showView(R.id.next_layout, false);
+                m_showNextNadac = false;
+                showView(null, R.id.next_layout, false);
                 loadRandomNadac();
-                showView(R.id.guess_buttons, true);
+                showView(null, R.id.guess_buttons, true);
                 //showInfoText("Načteno, můžeš hádat.");
                 break;
             }
@@ -419,4 +442,7 @@ public class GuessFragment extends Fragment implements LoadNadaceTask.NadacDbLis
     private int m_currInfoTextId;
     private Random m_random = new Random();
     private boolean m_loaded = false;
+    private int m_pendingCarouselAnimIdx;
+    private boolean m_firstCarouselAnim;
+    private boolean m_showNextNadac;
 }

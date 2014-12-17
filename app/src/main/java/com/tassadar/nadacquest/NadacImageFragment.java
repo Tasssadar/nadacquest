@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 
 public class NadacImageFragment extends Fragment {
     public static Fragment newInstance(Context context, int pos, float scale)
@@ -22,20 +21,21 @@ public class NadacImageFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        if (container == null) {
+        Bundle args = getArguments();
+        if (container == null || getActivity() == null || args == null || !args.containsKey("idx")) {
             return null;
         }
         int w = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 150,
                 container.getContext().getResources().getDisplayMetrics());
         Nadac n = NadacDB.Get().getNadac(getArguments().getInt("idx"));
-        NadacImageView v = new NadacImageView(container.getContext());
+        NadacImageView v = new NadacImageView(getActivity());
         v.setScaleType(ImageView.ScaleType.FIT_CENTER);
         v.setMaxWidth(w);
         v.setMaxHeight(w);
         v.setMinimumHeight(w);
         v.setMinimumWidth(w);
         v.setImageBitmap(n.photo);
-        v.setScaleBoth(getArguments().getFloat("scale"));
+        v.setScaleBoth(getArguments().getFloat("scale", 1.f));
         v.setId(R.id.photo);
         return v;
     }

@@ -1,25 +1,28 @@
 package com.tassadar.nadacquest;
 
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.support.v4.view.ViewPager;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
-
-import at.technikum.mti.fancycoverflow.FancyCoverFlow;
 
 public class GuessFragment extends Fragment implements LoadNadaceTask.NadacDbListener, View.OnClickListener {
     private static final int SAMPLE_SIZE = 5;
@@ -102,9 +105,35 @@ public class GuessFragment extends Fragment implements LoadNadaceTask.NadacDbLis
             return;
         }
 
-        FancyCoverFlow f = (FancyCoverFlow)getView().findViewById(R.id.photo);
-        f.setSpacing(0);
-        f.setAdapter(new NadacCarouselAdapter(getActivity(), m_db));
+        final int img = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 158, getResources().getDisplayMetrics());
+
+        final ViewPager p = (ViewPager)getView().findViewById(R.id.photo);
+        NadacCarouselAdapter2 a = new NadacCarouselAdapter2(getActivity(), getFragmentManager(), m_db, p.getId());
+        p.setAdapter(a);
+        p.setOnPageChangeListener(a);
+        p.setOffscreenPageLimit(6);
+        p.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                p.setPageMargin(((p.getWidth() - img))*-1);
+            }
+        }, 1);
+        p.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                return true;
+            }
+        });
+
+        try {
+            Field mScroller;
+            mScroller = ViewPager.class.getDeclaredField("mScroller");
+            mScroller.setAccessible(true);
+            FixedSpeedScroller scroller = new FixedSpeedScroller(getActivity(), new AccelerateDecelerateInterpolator());
+            mScroller.set(p, scroller);
+        } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
 
         // DB has loaded again and has been shuffled, we need to look for the idx again
         if(m_correctNadacIdx != -1 && m_db.getNadac(m_correctNadacIdx).id != m_correctNadacId) {
@@ -180,14 +209,26 @@ public class GuessFragment extends Fragment implements LoadNadaceTask.NadacDbLis
 
     private void loadDataToViews(View v) {
         final Nadac correctNadac = m_db.getNadace().get(m_correctNadacIdx);
-        FancyCoverFlow f = (FancyCoverFlow)getView().findViewById(R.id.photo);
-        f.scrollToIndex(m_correctNadacIdx, !m_loaded);
-        m_loaded = false;
+        final ViewPager p = (ViewPager)getView().findViewById(R.id.photo);
+        p.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                p.setCurrentItem(m_correctNadacIdx, !m_loaded);
+            }
+        }, 1);
 
-        String hobbies = correctNadac.hobbies;
-        if(hobbies.isEmpty())
-            hobbies = "Nic jsem o sobě nenapsal(a) :(";
-        ((TextView)v.findViewById(R.id.hobbies)).setText(hobbies);
+        final TextView t = (TextView)v.findViewById(R.id.hobbies);
+        t.setVisibility(View.INVISIBLE);
+        final String hobbies = correctNadac.hobbies;
+        t.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                t.setText(hobbies.isEmpty() ? "Nic jsem o sobě nenapsal(a) :(" : hobbies);
+                t.setVisibility(View.VISIBLE);
+            }
+        }, m_loaded ? 0 : 1000);
+
+        m_loaded = false;
 
         for(int i = 0; i < Nadac.VALS_MAX; ++i) {
             ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), R.layout.opt_layout);

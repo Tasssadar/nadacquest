@@ -34,17 +34,14 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:stretchColumns="1"
-            android:layout_gravity="center_vertical">
+            android:layout_gravity="center_vertical"
+            android:animateLayoutChanges="true">
 
-            <at.technikum.mti.fancycoverflow.FancyCoverFlow
+            <android.support.v4.view.ViewPager
                 android:id="@+id/photo"
                 android:layout_width="match_parent"
                 android:layout_height="150dp"
-                fcf:maxRotation="0"
-                fcf:unselectedAlpha="0.3"
-                fcf:unselectedSaturation="0.0"
-                fcf:unselectedScale="0.5"
-                fcf:scaleDownGravity="0.5"
+                android:overScrollMode="never"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"/>
@@ -54,7 +51,8 @@
                 android:layout_height="wrap_content"
                 android:textStyle="italic"
                 android:gravity="center"
-                android:layout_margin="10dp"/>
+                android:layout_margin="10dp"
+                android:visibility="invisible"/>
 
             <TableRow
                 android:layout_marginLeft="10dp"

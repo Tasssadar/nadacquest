@@ -23,7 +23,7 @@
         android:layout_marginBottom="48dp"
         android:layout_marginLeft="24dp"
         android:layout_marginRight="24dp"
-        android:text="Vítej v aplikaci NadáčQuest, ve které zjištíš, jak dobře si pamatuješ jednotlivé nadáče."
+        android:text="Vítej v aplikaci NadáčQuest, ve které zjištíš, jak dobře si pamatuješ jednotlivé nadáče.\nPečlivě si přečti následující informace - žádné přeskakování!"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:layout_gravity="center_horizontal"
         android:gravity="center"/>

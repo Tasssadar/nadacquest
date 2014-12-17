@@ -1,21 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <string name="app_name">NadáčQuest</string>
     <string name="poznas">Poznáš nadáče?</string>
-    <string name="action_settings">Settings</string>
-    <string name="author1">Programoval to <b>Vojtěch Boček</b>. <b>Jaroslav Páral</b> mu pomáhal se získáváním databáze nadáčů. <b>Anna Hradecká</b> a\u00A0<b>Honza Horáček</b> také pomáhali, jen si výše zmíněný Vojtěch není jistý s\u00A0čím přesně, ale přesto jim děkuje.</string>
-    <string name="author2">Dále děkujeme asi 40 nadáčům, kteří nám vyplnili dotazníky o jejich osobách. S tím souvisí menší nepříjemnost: <b>databáze v této aplikaci je poměrně malá, protože jsme se nedostali k té opravdové z JCMM.</b></string>
-
-    <string-array name="planets_array">
-        <item>Mercury</item>
-        <item>Venus</item>
-        <item>Earth</item>
-        <item>Mars</item>
-        <item>Jupiter</item>
-        <item>Saturn</item>
-        <item>Uranus</item>
-        <item>Neptune</item>
-    </string-array>
-
+    <string name="author1">Programoval to <b>Vojtěch Boček</b> a\u00A0<b>Jaroslav Páral</b> mu pomáhal se získáváním databáze nadáčů. <b>Anna Hradecká</b> a\u00A0<b>Honza Horáček</b> také pomáhali, jen si výše zmíněný Vojtěch není jistý s\u00A0čím přesně, ale přesto jim děkuje.</string>
+    <string name="author2">Dále děkujeme asi 40 nadáčům, kteří nám vyplnili dotazníky o\u00A0jejich osobách. S\u00A0tím souvisí menší nepříjemnost: <b>databáze v\u00A0této aplikaci je poměrně malá, protože jsme se nedostali k\u00A0té opravdové z\u00A0JCMM.</b></string>
 </resources>

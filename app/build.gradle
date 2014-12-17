@@ -8,8 +8,8 @@ android {
         applicationId "com.tassadar.nadacquest"
         minSdkVersion 14
         targetSdkVersion 21
-        versionCode 5
-        versionName "v1.5"
+        versionCode 6
+        versionName "v1.6"
     }
 
     compileOptions {

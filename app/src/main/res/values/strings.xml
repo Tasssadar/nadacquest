@@ -3,5 +3,5 @@
     <string name="app_name">NadáčQuest</string>
     <string name="poznas">Poznáš nadáče?</string>
     <string name="author1">Programoval to <b>Vojtěch Boček</b> a\u00A0<b>Jaroslav Páral</b> mu pomáhal se získáváním databáze nadáčů. <b>Anna Hradecká</b> a\u00A0<b>Honza Horáček</b> také pomáhali, jen si výše zmíněný Vojtěch není jistý s\u00A0čím přesně, ale přesto jim děkuje.</string>
-    <string name="author2">Dále děkujeme asi 40 nadáčům, kteří nám vyplnili dotazníky o\u00A0jejich osobách. S\u00A0tím souvisí menší nepříjemnost: <b>databáze v\u00A0této aplikaci je poměrně malá, protože jsme se nedostali k\u00A0té opravdové z\u00A0JCMM.</b></string>
+    <string name="author2">Dále děkujeme asi 40 nadáčům, kteří nám vyplnili dotazníky o\u00A0jejich osobách. S\u00A0tím souvisí menší nepříjemnost: <b>databáze v\u00A0této aplikaci je poměrně malá, protože jsme se nedostali k\u00A0té opravdové z\u00A0JCMM.</b> Ale jako bonus mají všichni tito nadáči nyní na jcmm.cz nahranou fotku.</string>
 </resources>

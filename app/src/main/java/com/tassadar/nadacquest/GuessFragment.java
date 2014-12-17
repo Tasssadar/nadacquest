@@ -1,5 +1,6 @@
 package com.tassadar.nadacquest;
 
+import android.os.Build;
 import android.support.v4.app.Fragment;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -10,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -112,12 +114,17 @@ public class GuessFragment extends Fragment implements LoadNadaceTask.NadacDbLis
         p.setAdapter(a);
         p.setOnPageChangeListener(a);
         p.setOffscreenPageLimit(6);
-        p.postDelayed(new Runnable() {
+        p.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
-            public void run() {
-                p.setPageMargin(((p.getWidth() - img))*-1);
+            public void onGlobalLayout() {
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+                    p.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                } else {
+                    p.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                }
+                p.setPageMargin((p.getWidth() - img)*-1);
             }
-        }, 1);
+        });
         p.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
